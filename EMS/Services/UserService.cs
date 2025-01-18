@@ -15,25 +15,22 @@ namespace EMS.Services
         private readonly IMapper _mapper;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<User> _userManager;
-        private readonly IJwt _jwt;
         private readonly IEmail _email;
-
-        public UserService( ApplicationDbContext context , IMapper mapper , RoleManager<IdentityRole> roleManager , UserManager<User> userManager, IJwt jwt, IEmail mail)
-        {   
+        private readonly SignInManager<User> _signInManager;
+        public UserService(ApplicationDbContext context, IMapper mapper, RoleManager<IdentityRole> roleManager, UserManager<User> userManager, IEmail mail, SignInManager<User> signInManager)
+        {
             //Initialize
             _context = context;
             _mapper = mapper;
             _roleManager = roleManager;
             _userManager = userManager;
-            _jwt = jwt;
             _email = mail;
+            _signInManager = signInManager;
         }
-
         public async  Task<bool> AssignUserRole(string email, string Rolename)
         {
             // Get User
-            try
-            {
+        
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
                 // If user Exist
                 if (user != null)
@@ -47,17 +44,48 @@ namespace EMS.Services
 
                     //assign role if it exist
 
-                    await _userManager.AddToRoleAsync(user, Rolename);
+                   var addRoleResult= await _userManager.AddToRoleAsync(user, Rolename);
 
+                if (addRoleResult.Succeeded)
+                {
                     return true;
                 }
-            }catch (Exception ex)
-            {
+                }
                 return false;
+                  
+        }
+
+        public async Task<bool> UpdateUserRole(string email, string newRoleName)
+        {
+            // Get the user by email
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+
+            // If user exists
+            if (user != null)
+            {
+                var currentRoles = await _userManager.GetRolesAsync(user);
+
+                if (!currentRoles.Contains(newRoleName))
+                {
+                    var removeRoleResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    if (!removeRoleResult.Succeeded)
+                    {
+                        
+                        return false;
+                    }
+
+                    var addRoleResult = await _userManager.AddToRoleAsync(user, newRoleName);
+                    if (addRoleResult.Succeeded)
+                    {
+                        return true;
+                    }
+                }
             }
 
+            // Return false if user doesn't exist or role update failed
             return false;
         }
+
 
         public async Task<string> ForgotPassword(string email)
         {
@@ -93,6 +121,31 @@ namespace EMS.Services
             return "Eror Occured";
         }
 
+        public async Task<List<UserResponseDTO>> GetUsers()
+        {
+            var users = await _context.Users.ToListAsync(); // Fetch all users asynchronously
+
+            var userResponses = new List<UserResponseDTO>();
+
+            foreach (var user in users)
+            {
+                // Fetch roles asynchronously for each user
+                var roles = await _userManager.GetRolesAsync(user);
+
+                userResponses.Add(new UserResponseDTO
+                {
+                    Id = user.Id.ToString(),
+                    Name = user.Name,
+                    Email = user.Email,
+                    Position = user.Position,
+                    Role = roles.First() // Convert the roles to a list or any suitable representation
+                });
+            }
+
+            return userResponses;
+
+        }
+
         public async Task<LoginResponseDTO> LoginUser(LoginRequestDTO userDetails)
         {
             //get User
@@ -110,15 +163,38 @@ namespace EMS.Services
 
                 //else return a token 
                 var roles = await _userManager.GetRolesAsync(user);
-                var token = _jwt.GenerateToken(user, string.IsNullOrEmpty(roles.First()) ? "User" : roles.First());
                 var loggedUser = _mapper.Map<LoginResponseDTO>(user);
-                loggedUser.Token = token;
+                loggedUser.Role = roles.First();
+
+
+                //sign in user 
+                await _signInManager.SignInAsync(user, isPersistent: false);
 
                 return loggedUser;
             }catch (Exception ex)
             {
                 return new LoginResponseDTO();
             }
+        }
+
+        public async Task LogoutUser()
+        {
+          await _signInManager.SignOutAsync();
+        }
+
+        public async Task<bool> confirm(string token)
+        {
+            var user= await _context.Users.FirstOrDefaultAsync( x=>x.ConfirmationToken == token);
+
+            if(user == null)
+            {
+                return false;
+            }
+
+            user.ConfirmationToken = "";
+            _context.Users.Update(user);
+            _context.SaveChanges();
+            return true;
         }
 
         public async Task<string> RegisterUser(AddUSerDTO newUser)
@@ -129,10 +205,23 @@ namespace EMS.Services
             try
             {
                 //Create user
-                var result= await _userManager.CreateAsync(user, newUser.Password);
+
+                byte[] randomBytes = new byte[24];
+                using (var rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(randomBytes);
+                }
+
+                // Convert bytes to a hex string 
+                var confirmationToken = BitConverter.ToString(randomBytes).Replace("-", "").ToLower();
+                user.ConfirmationToken = confirmationToken;
+
+               var result= await _userManager.CreateAsync(user, newUser.Password);
                 //Assign Role
                 await AssignUserRole(user.Email, newUser.Role.ToString());
+                // Send Confirmation  Email
 
+                await _email.sendConfirmationEmail(confirmationToken, user.Name, user.Email);
 
                 if(result.Succeeded) 
                     {
@@ -158,7 +247,7 @@ namespace EMS.Services
 
             if(user== null)
             {
-                return "Erro Occured, Invalid Token ";
+                return "Error Occured, Invalid Token ";
             }
 
             if(DateTime.Now > user.PasswordResetExpires)

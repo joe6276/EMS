@@ -1,7 +1,9 @@
 ﻿using Azure;
 using EMS.Data;
+using EMS.Extensions;
 using EMS.Models.DTO.UserDTO;
 using EMS.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -11,14 +13,20 @@ namespace EMS.Controllers
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly IUser _user;
+
+    
+
         public UserController( ApplicationDbContext context, IUser user)
         {
             _dbContext = context;
             _user = user;
+ 
         }
-        public IActionResult Index()
+       
+        public async Task<IActionResult> Index()
         {
-            var users = _dbContext.Users.ToList();
+
+            var users = await _user.GetUsers();
             return View(users);
         }
 
@@ -32,10 +40,28 @@ namespace EMS.Controllers
         {
 
             var response = await _user.LoginUser(user);
-            if (string.IsNullOrEmpty(response.Token))
+            if (string.IsNullOrEmpty(response.Name))
             {
                 ModelState.AddModelError("", "Invalid Credentials");
             }
+            return View();
+        }
+
+
+
+      
+
+      
+        public async Task<IActionResult> Confirm()
+        {
+            var token = Request.Query["token"];
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                ModelState.AddModelError("", "Error Occured");
+            }
+            var res = await _user.confirm(token);
+
 
             return View();
         }
@@ -96,5 +122,22 @@ namespace EMS.Controllers
 
             return View();
         }
-    }
+
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateRole(string email, string role)
+        {
+            var result = await _user.UpdateUserRole(email, role);
+
+            if (result)
+            {
+                return Json(new { success = true });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Error updating role" });
+            }
+        }
+
+        }
 }

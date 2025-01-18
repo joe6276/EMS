@@ -46,5 +46,42 @@ namespace EMS.Services
 
             return true;
         }
+
+        public async Task<bool> sendConfirmationEmail( string confirmationToken, string name, string email)
+        {
+            var myemail = _configuration.GetSection("EmailService:Email").Get<string>();
+            var password = _configuration.GetSection("EmailService:Password").Get<string>();
+
+
+            MimeMessage message1 = new MimeMessage();
+            message1.From.Add(new MailboxAddress("Confirmation Email ", email));
+            var confrimation = "https://localhost:7007/User/confirm?token=" + confirmationToken;
+            // Set the recipient's email address
+            message1.To.Add(new MailboxAddress(name, email));
+
+            message1.Subject = "EMS Account Confirmationt";
+
+            var builder = new BodyBuilder();
+            string htmlTemplate = await File.ReadAllTextAsync("Templates/confirmation.html");
+            builder.HtmlBody = htmlTemplate
+                .Replace("{userName}", name)
+                .Replace("{Company}", "EMS")
+                .Replace("{confirmationLink}", confrimation);
+
+
+            message1.Body = builder.ToMessageBody();
+
+            var client = new MailKit.Net.Smtp.SmtpClient();
+
+            client.Connect("smtp.gmail.com", 587, false);
+
+            client.Authenticate(myemail, password);
+
+            await client.SendAsync(message1);
+
+            await client.DisconnectAsync(true);
+
+            return true;
+        }
     }
 }

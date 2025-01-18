@@ -1,3 +1,4 @@
+using System.Text;
 using EMS.Data;
 using EMS.Extensions;
 using EMS.Models;
@@ -5,8 +6,10 @@ using EMS.Profiles;
 using EMS.Services;
 using EMS.Services.Interfaces;
 using EMS.Utility;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,9 +38,33 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOpti
 
 //Add Custom Classes
 
-builder.Services.AddScoped<IJwt, JwtService>();
 builder.Services.AddScoped<IUser , UserService>();
 builder.Services.AddScoped<IEmail, EmailService>();
+
+//Add Token Validator
+
+var jwtSettings = builder.Configuration.GetSection("JwtOptions");
+var key = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
+
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+
 
 var app = builder.Build();
 
@@ -58,6 +85,8 @@ app.UseRouting();
 
 //add any pending migration
 app.UseMigration();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

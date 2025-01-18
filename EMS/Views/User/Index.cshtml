@@ -1,5 +1,7 @@
-﻿
-@model List<User> 
+﻿@using Microsoft.AspNetCore.Identity
+
+@model List<UserResponseDTO> 
+
 <h1> User List </h1>
 
 <table class="table table-striped">
@@ -9,6 +11,7 @@
             <th scope="col">Name</th>
             <th scope="col">Email</th>
             <th scope="col">Position</th>
+            <th scope="col">Role</th>
         </tr>
     </thead>
     <tbody>
@@ -18,7 +21,46 @@
             <td>@user.Name</td>
             <td>@user.Email</td>
             <td>@user.Position</td>
+             <td>@user.Role</td>
+            <td>
+            @if(user.Role =="Manager"){
+                    <td> <button onclick="changeRole('@user.Email', 'Admin')"> Make Admin</button></td>
+                  
+            }
+                    @if (user.Role == "Employee")
+                    {
+                    <td> <button onclick="changeRole('@user.Email', 'Manager')"> Make Manager</button></td>
+
+                    }
+
+                    @if (user.Role == "Admin")
+                    {
+                    <td onclick="changeRole('@user.Email', 'Employee')"> <button> Make User</button></td>
+
+                    }
+            </td>
+
+             
         </tr>
       }
     </tbody>
 </table>
+
+
+<script>
+    function changeRole(email, newRole) {
+        // Use AJAX to call the controller action for updating the role
+        $.ajax({
+            url: '@Url.Action("UpdateRole", "User")',  // Action method and controller
+            type: 'POST',
+            data: { email:email, role: newRole },
+            success: function(response) {
+                alert('Role changed successfully!');
+                location.reload(); // Refresh page after success
+            },
+            error: function(xhr, status, error) {
+                alert('Error changing role: ' + error);
+            }
+        });
+    }
+</script>

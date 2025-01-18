@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using EMS.Models.DTO.UserDTO;
 using Microsoft.AspNetCore.Identity;
 
 namespace EMS.Models
 {
 
-    public enum Department
+     public enum Department
     {
         IT ,
         Finance,
@@ -12,12 +13,7 @@ namespace EMS.Models
         Sales
     }
 
-    public enum Role
-    {
-        Admin,
-        Manager,
-        Employee
-    }
+   
     public class User:IdentityUser
     {
         [Key]
@@ -39,6 +35,8 @@ namespace EMS.Models
         public int Salary { get; set; }
 
         public string PasswordResetToken  { get; set; } = string.Empty;
+
+        public string ConfirmationToken { get; set; } = string.Empty;
 
         public DateTime PasswordResetExpires { get; set; } = DateTime.Now;
     }
