@@ -1,0 +1,24 @@
+﻿
+@model List<User> 
+<h1> User List </h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Position</th>
+        </tr>
+    </thead>
+    <tbody>
+      @foreach(var user in Model.OrderBy(usr=>usr.Name)){
+        <tr>
+            <th scope="row">1</th>
+            <td>@user.Name</td>
+            <td>@user.Email</td>
+            <td>@user.Position</td>
+        </tr>
+      }
+    </tbody>
+</table>
