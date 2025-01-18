@@ -13,6 +13,9 @@ namespace EMS.Profiles
             //Value of the Email to be Mapped to UserName
            CreateMap<AddUSerDTO , User>().
                 ForMember(dest=>dest.UserName, u=>u.MapFrom(reg=>reg.Email));
+
+            //User to LoginResponse
+            CreateMap<User, LoginResponseDTO>();
         }
     }
 }

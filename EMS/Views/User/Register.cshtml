@@ -1,0 +1,81 @@
+﻿
+@model AddUSerDTO
+
+
+		<form method="post">
+		<div class="border p-3 mt-4">
+			<div class="row pb-2">
+				<h2 class="text-black"> Register User</h2>
+				<hr />
+			</div>
+			</div>
+			<div asp-validation-summary="All" class="text-danger" ></div>
+			<div class="form-row">
+				<div class="form-group col-md-6 mb-2">
+					<label for="Name">Name</label>
+					<input asp-for="Name"  class="form-control" id="name" placeholder="Name">
+				</div>
+				<div class="form-group col-md-6 mb-2">
+					<label for="inputEmail4">Email</label>
+					<input asp-for="Email" class="form-control" id="emails" placeholder="Email">
+				</div>
+			</div>
+
+			<div class="form-row ">
+				<div class="form-group col-md-8 mb-2">
+					<label for="pNumber">Phone Number</label>
+					<input asp-for="PhoneNumber" class="form-control" id="pnumber" placeholder="070000000">
+				</div>
+			   <div class="form-group col-md-8  mb-2">
+					<label for="password">Password</label>
+					<input type="password" asp-for="Password" class="form-control" id="pass" placeholder="Password">
+				</div>
+			</div>
+
+			<div class="form-row mb-2">
+				<div class="form-group col-md-8">
+					<label for="inputState">Department</label>
+					<select id="dept" class="form-control" asp-for="Department">
+						<option selected>Choose...</option>
+						<option value=0>IT</option>
+						<option value=1>Finance</option>
+						<option value=2>Marketing</option>
+						<option value=3>Sales</option>
+					</select>
+				</div>
+				
+
+				<div class="form-row mb-2" >
+				<div class="form-group col-md-8">
+					<label for="inputState">Role</label>
+					<select id="dept" class="form-control" asp-for="Role">
+						<option selected>Select Role</option>
+						<option value=2 >User</option>
+						<option value=0>Admin</option>
+						<option value=1> Manager</option>
+					</select>
+				</div>
+
+				<div class="form-group col-md-8 mb-2">
+					<label for="position">Position</label>
+					<input asp-for="Position"class="form-control" id="pos" placeholder="position">
+				</div>
+			</div>
+
+			<div class="form-group  col-md-8 mb-4">
+				<label for="salary">Salary</label>
+				<input asp-for="Salary" class="form-control" id="salary" placeholder="salary">
+			</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+						<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+
+				<div class=" flex flex-row col-md-6">
+					 <p> Already a Member? <a asp-controller="User" asp-action="Login" > Login</a> </p>
+				</div>
+			</div>
+			
+			
+		</form>

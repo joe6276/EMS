@@ -6,7 +6,7 @@ namespace EMS.Models
 
     public enum Department
     {
-        IT,
+        IT ,
         Finance,
         Marketing,
         Sales
@@ -25,16 +25,21 @@ namespace EMS.Models
         [Required]
         public string Name { get; set; } = string.Empty;
         [Required]
+        [EmailAddress]
         public string Email { get; set; } = string.Empty;
         [Required]
         public string Position { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage ="Password is Required")]
         public string Password { get; set; } = string.Empty;
         [Required]
-        public Department department { get; set; }
+        public Department department { get; set; }  
         [Required]
         public Role role { get; set; }
         [Required]
         public int Salary { get; set; }
+
+        public string PasswordResetToken  { get; set; } = string.Empty;
+
+        public DateTime PasswordResetExpires { get; set; } = DateTime.Now;
     }
 }

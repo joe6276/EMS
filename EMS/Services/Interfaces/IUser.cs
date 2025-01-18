@@ -11,5 +11,10 @@ namespace EMS.Services.Interfaces
         Task<bool> AssignUserRole(string email, string Rolename);
 
 
+        Task<string> ForgotPassword(string email);
+
+        Task<string> Resetpassword(string resetToken, ResetPasswordDTO resetDetails);
+
+
     }
 }

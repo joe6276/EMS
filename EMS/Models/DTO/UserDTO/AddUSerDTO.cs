@@ -9,10 +9,11 @@ namespace EMS.Models.DTO.UserDTO
         public string Name { get; set; } = string.Empty;
 
         [Required]
-
+        [EmailAddress]
         public string Email { get; set; } = string.Empty;
 
         [Required]
+        [MinLength(8)]
         public string Password { get; set; } = string.Empty;
 
         [Required]
@@ -21,9 +22,9 @@ namespace EMS.Models.DTO.UserDTO
         public string Position { get; set; } = string.Empty;
 
         [Required]
-        public Department department { get; set; }
+        public Department Department { get; set; }
         [Required]
-        public Role role { get; set; }
+        public Role Role { get; set; }
         [Required]
         public int Salary { get; set; }
     }

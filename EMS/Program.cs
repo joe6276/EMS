@@ -1,4 +1,5 @@
 using EMS.Data;
+using EMS.Extensions;
 using EMS.Models;
 using EMS.Profiles;
 using EMS.Services;
@@ -19,7 +20,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 });
 
 //Add Identity
-builder.Services.AddIdentity<User , IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<User , IdentityRole>(options =>
+{
+    options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
+}).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 //Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -33,7 +37,7 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOpti
 
 builder.Services.AddScoped<IJwt, JwtService>();
 builder.Services.AddScoped<IUser , UserService>();
-
+builder.Services.AddScoped<IEmail, EmailService>();
 
 var app = builder.Build();
 
@@ -51,6 +55,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+//add any pending migration
+app.UseMigration();
 
 app.UseAuthorization();
 

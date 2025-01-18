@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250118100543_UserTableMigration")]
+    [Migration("20250118112351_UserTableMigration")]
     partial class UserTableMigration
     {
         /// <inheritdoc />
