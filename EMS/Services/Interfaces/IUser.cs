@@ -1,4 +1,5 @@
-﻿using EMS.Models.DTO.UserDTO;
+﻿using EMS.Models;
+using EMS.Models.DTO.UserDTO;
 
 namespace EMS.Services.Interfaces
 {
@@ -22,6 +23,13 @@ namespace EMS.Services.Interfaces
         Task<List<UserResponseDTO>> GetUsers();
 
         Task<bool> confirm(string token);
+
+        Task<bool> deleteUser(string userId);
+
+        Task<AddUSerDTO> GetUserId(string userId);
+        
+        Task<bool> UpdateUser(string userId , UpdateUserDto updateUser); 
+         Task <UpdateUserDto> GetUpdateDetails(string userId);
 
 
     }

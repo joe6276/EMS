@@ -22,12 +22,10 @@ namespace EMS.Controllers
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken] // Protect against CSRF attacks
         public async Task<IActionResult> Logout()
         {
-            await _user.LogoutUser();  // Sign the user out
-            return RedirectToAction("login", "User"); // Redirect to home page or login page
+             await _user.LogoutUser();  // Sign the user out
+            return RedirectToAction("Index", "Home"); // Redirect to home page or login page
         }
         public IActionResult Privacy()
         {
@@ -38,6 +36,12 @@ namespace EMS.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+
+        public IActionResult Homepage()
+        {
+            return View();
         }
     }
 }

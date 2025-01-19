@@ -16,6 +16,10 @@ namespace EMS.Profiles
 
             //User to LoginResponse
             CreateMap<User, LoginResponseDTO>();
+
+            CreateMap<User, UpdateUserDto>().ReverseMap();
+
+            CreateMap<User, AddUSerDTO>().ReverseMap();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using AutoMapper;
+using Azure;
 using EMS.Data;
 using EMS.Models;
 using EMS.Models.DTO.UserDTO;
@@ -201,6 +202,7 @@ namespace EMS.Services
         {
             
             var user = _mapper.Map<User>(newUser);
+            user.Id = Guid.NewGuid().ToString();
 
             try
             {
@@ -263,6 +265,38 @@ namespace EMS.Services
           
 
             return "";
+        }
+
+        public async Task<bool> deleteUser(string userId)
+        {   
+       
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            _context.Users.Remove(user);
+            _context.SaveChanges();
+            return true;
+        }
+
+        public async Task<AddUSerDTO> GetUserId(string userId)
+        {
+            var userDetails = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var user = _mapper.Map<AddUSerDTO>(userDetails);
+            return user;
+        }
+
+        public async Task<bool> UpdateUser(string userId, UpdateUserDto updateUser)
+        {
+            var existingUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var updated = _mapper.Map(updateUser, existingUser);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<UpdateUserDto> GetUpdateDetails(string userId)
+        {
+            var userDetails = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var user = _mapper.Map<UpdateUserDto>(userDetails);
+            return user;
         }
     }
 }

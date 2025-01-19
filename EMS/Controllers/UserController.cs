@@ -1,4 +1,5 @@
-﻿using Azure;
+﻿using System.Security.Claims;
+using Azure;
 using EMS.Data;
 using EMS.Extensions;
 using EMS.Models.DTO.UserDTO;
@@ -44,7 +45,7 @@ namespace EMS.Controllers
             {
                 ModelState.AddModelError("", "Invalid Credentials");
             }
-            return View();
+            return RedirectToAction("Homepage", "Home");
         }
 
 
@@ -139,5 +140,47 @@ namespace EMS.Controllers
             }
         }
 
+
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteUser(string Id)
+        {
+            var result = await _user.deleteUser(Id);
+            if (result)
+            {
+                return Json(new { success = true });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Error updating role" });
+            }
         }
+
+
+        public async Task<IActionResult> Profile()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user= await _user.GetUserId(userId);
+          
+            return View(user);
+        }
+
+
+        public async Task<IActionResult> Edit()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _user.GetUpdateDetails(userId);
+            return View(user);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(UpdateUserDto addUSerDTO)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                     var response = await _user.UpdateUser(userId, addUSerDTO);
+            return RedirectToAction("index");
+
+        }
+    }
 }

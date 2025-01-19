@@ -17,7 +17,7 @@ namespace EMS.Models
     public class User:IdentityUser
     {
         [Key]
-        public Guid Id { get; set; }
+        public override string  Id { get; set; }
         [Required]
         public string Name { get; set; } = string.Empty;
         [Required]

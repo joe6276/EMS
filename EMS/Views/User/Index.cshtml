@@ -7,7 +7,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th scope="col">#</th>
+            
             <th scope="col">Name</th>
             <th scope="col">Email</th>
             <th scope="col">Position</th>
@@ -17,28 +17,36 @@
     <tbody>
       @foreach(var user in Model.OrderBy(usr=>usr.Name)){
         <tr>
-            <th scope="row">1</th>
+            
             <td>@user.Name</td>
             <td>@user.Email</td>
             <td>@user.Position</td>
              <td>@user.Role</td>
-            <td>
-            @if(user.Role =="Manager"){
-                    <td> <button onclick="changeRole('@user.Email', 'Admin')"> Make Admin</button></td>
-                  
-            }
-                    @if (user.Role == "Employee")
-                    {
-                    <td> <button onclick="changeRole('@user.Email', 'Manager')"> Make Manager</button></td>
+                @if (User.IsInRole("Admin"))
+                {
+                    <td>
+                        @if (user.Role == "Manager")
+                        {
+                        <td> <button onclick="changeRole('@user.Email', 'Admin')"> Make Admin</button></td>
 
-                    }
+                        }
+                        @if (user.Role == "Employee")
+                        {
+                        <td> <button onclick="changeRole('@user.Email', 'Manager')"> Make Manager</button></td>
 
-                    @if (user.Role == "Admin")
-                    {
-                    <td onclick="changeRole('@user.Email', 'Employee')"> <button> Make User</button></td>
+                        }
 
-                    }
-            </td>
+                        @if (user.Role == "Admin")
+                        {
+                        <td onclick="changeRole('@user.Email', 'Employee')"> <button> Make User</button></td>
+
+                        }
+                    </td>
+        }
+                @if (User.IsInRole("Admin"))
+                {
+               <td> <button class="btn btn-danger" onclick="deleteUser('@user.Id')"> Delete </button></td>
+                }
 
              
         </tr>
@@ -63,4 +71,24 @@
             }
         });
     }
+
+        function deleteUser(Id) {
+        if (confirm("Are you sure you want to delete this user?")) {
+            $.ajax({
+                url: '@Url.Action("DeleteUser", "User")', // Server action and controller
+                type: 'POST', // Use POST for form-based operations if DELETE is not supported
+                data: { id: Id }, // Pass the user ID
+                success: function(response) {
+                    alert('User deleted successfully!');
+                    location.reload(); // Reload the page to reflect changes
+                },
+                error: function(xhr, status, error) {
+                    alert('Error deleting user: ' + xhr.responseText);
+                }
+            });
+        }
+    }
+
+
+
 </script>
