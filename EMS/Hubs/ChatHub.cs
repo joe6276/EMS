@@ -24,7 +24,7 @@ namespace EMS.Hubs
             {
                 SenderId = userId,
                 ReceiverId = receiverId,
-                Text = content,
+                Content = content,
                 Timestamp = DateTime.UtcNow,
                 IsRead = false
             };
@@ -39,12 +39,7 @@ namespace EMS.Hubs
                 message = content,
                 timestamp = DateTime.UtcNow
             });
-            
-
-            //await Clients.User(receiverId).SendAsync(userId, content);
-
-
-           
+                       
         }
         public override async Task OnConnectedAsync()
         {

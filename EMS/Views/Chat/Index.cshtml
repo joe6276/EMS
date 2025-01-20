@@ -205,87 +205,6 @@
     </div>
 </div>
 
-@*  @section Scripts {
-    <script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
-    <script>
-        let connection = new signalR.HubConnectionBuilder()
-            .withUrl("/chatHub")
-            .build();
-
-        let selectedUserId = null;
-
-        connection.start().catch(err => console.error(err));
-
-        connection.on("ReceiveMessage", function (message) {
-            if (message.senderId === selectedUserId) {
-                appendMessage(message.message, message.timestamp, false);
-            }
-            // Show notification if chat is not active
-            else {
-                showNotification(message);
-            }
-        });
-
-        function appendMessage(content, timestamp, isSent) {
-            const messageDiv = document.createElement("div");
-            messageDiv.className = `message ${isSent ? 'sent' : 'received'} mb-2`;
-            messageDiv.innerHTML = `
-                <div class="message-content ${isSent ? 'bg-primary text-white' : 'bg-light'}">
-                    ${content}
-                    <small class="text-muted d-block">${new Date(timestamp).toLocaleTimeString()}</small>
-                </div>
-            `;
-            document.getElementById("messagesList").appendChild(messageDiv);
-        }
-
-        function showNotification(message) {
-            if ("Notification" in window) {
-                Notification.requestPermission().then(function (permission) {
-                    if (permission === "granted") {
-                        new Notification("New Message", {
-                            body: message.content
-                        });
-                    }
-                });
-            }
-        }
-
-        // Load conversation when selecting a user
-        document.querySelectorAll('.user-item').forEach(item => {
-            item.addEventListener('click', async function() {
-                selectedUserId = this.dataset.userId;
-                document.getElementById("selectedUserName").textContent = this.textContent;
-                document.getElementById("sendButton").disabled = false;
-
-                // Load conversation history
-                const response = await fetch(`/Messages/GetConversation/${selectedUserId}`);
-                const messages = await response.json();
-
-                document.getElementById("messagesList").innerHTML = '';
-                messages.reverse().forEach(msg => {
-                    appendMessage(msg.content, msg.timestamp, msg.senderId !== selectedUserId);
-                });
-            });
-        });
-
-        // Send message
-        document.getElementById("sendButton").addEventListener("click", async function() {
-            const input = document.getElementById("messageInput");
-            const message = input.value.trim();
-
-            if (message && selectedUserId) {
-                await connection.invoke("SendMessage", selectedUserId, message);
-                appendMessage(message, new Date(), true);
-                input.value = '';
-            }
-        });
-    </script>
-
-
-        </script> *@
-} 
-
-
 
 @section Scripts {
     <script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
@@ -318,7 +237,7 @@
         });
 
         connection.on("ReceiveMessage", function (message) {
-            console.log("Message received:", message);  // Debug log
+        
             if (message.senderId === selectedUserId || message.senderId === document.querySelector('[data-user-id]').dataset.userId) {
                 appendMessage(message.message, message.timestamp, false);
             } else {
@@ -327,7 +246,7 @@
         });
 
         function appendMessage(content, timestamp, isSent) {
-            console.log("Appending message:", { content, timestamp, isSent });  // Debug log
+           
             const messagesList = document.getElementById("messagesList");
             const messageDiv = document.createElement("div");
             messageDiv.className = `message ${isSent ? 'sent' : 'received'} mb-2`;
@@ -345,14 +264,13 @@
           document.querySelectorAll('.user-item').forEach(item => {
             item.addEventListener('click', async function() {
                 selectedUserId = this.dataset.userId;
-                console.log('Yooh', selectedUserId)
+               
                 document.getElementById("selectedUserName").textContent = this.textContent;
                 document.getElementById("sendButton").disabled = false;
-
+                
                 // Load conversation history
                 const response = await fetch(`/Chat/GetConversation/${selectedUserId}`);
-                const messages = await response.json();
-
+                const messages = await response.json()
                 document.getElementById("messagesList").innerHTML = '';
                 messages.reverse().forEach(msg => {
                     appendMessage(msg.content, msg.timestamp, msg.senderId !== selectedUserId);
@@ -368,9 +286,9 @@
 
             if (message && selectedUserId) {
                 try {
-                    console.log("Sending message to:", selectedUserId);  // Debug log
+                // Debug log
                     await connection.invoke("SendMessage", selectedUserId, message);
-                    console.log("Message sent successfully");  // Debug log
+                  
                     appendMessage(message, new Date(), true);
                     input.value = '';
                 } catch (err) {
@@ -385,5 +303,17 @@
                 document.getElementById("sendButton").click();
             }
         });
+
+               var chatHub = $.connection.chatHub;
+               
+        // Handle incoming notifications
+        chatHub.client.receiveNotification = function (senderId, content) {
+            // Display a notification
+            alert(`New message from ${senderId}: ${content}`);
+            console.log(content)
+
+            // Optionally, update the message list or UI
+            $('#messageList').append(`<li><strong>${senderId}:</strong> ${content}</li>`);
+        };
     </script>
     }

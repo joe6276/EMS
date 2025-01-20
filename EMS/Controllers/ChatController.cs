@@ -33,10 +33,12 @@ namespace EMS.Controllers
             var users = await _user.GetUsers();
             return View(users);
         }
+
+        [HttpGet("Chat/GetConversation/{userId}")]
         public async Task<IActionResult> GetConversation(string userId)
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
+            var messageser = await _context.Messages.ToListAsync();
             var messages = await _context.Messages
                 .Where(m =>
                     (m.SenderId == currentUserId && m.ReceiverId == userId) ||
