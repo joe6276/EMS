@@ -55,7 +55,7 @@ namespace EMS.Services
 
             MimeMessage message1 = new MimeMessage();
             message1.From.Add(new MailboxAddress("Confirmation Email ", email));
-            var confrimation = "https://localhost:7007/User/confirm?token=" + confirmationToken;
+            var confrimation = "https://ems20250120223451.azurewebsites.net/User/confirm?token=" + confirmationToken;
             // Set the recipient's email address
             message1.To.Add(new MailboxAddress(name, email));
 

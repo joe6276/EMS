@@ -2,57 +2,59 @@
 
 @model List<UserResponseDTO> 
 
-<h1> User List </h1>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            
-            <th scope="col">Name</th>
-            <th scope="col">Email</th>
-            <th scope="col">Position</th>
-            <th scope="col">Role</th>
-        </tr>
-    </thead>
-    <tbody>
-      @foreach(var user in Model.OrderBy(usr=>usr.Name)){
-        <tr>
-            
-            <td>@user.Name</td>
-            <td>@user.Email</td>
-            <td>@user.Position</td>
-             <td>@user.Role</td>
-                @if (User.IsInRole("Admin"))
-                {
-                    <td>
-                        @if (user.Role == "Manager")
-                        {
-                        <td> <button onclick="changeRole('@user.Email', 'Admin')"> Make Admin</button></td>
+        <h1> User List </h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
 
-                        }
-                        @if (user.Role == "Employee")
-                        {
-                        <td> <button onclick="changeRole('@user.Email', 'Manager')"> Make Manager</button></td>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Position</th>
+                <th scope="col">Role</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.OrderBy(usr => usr.Name))
+            {
+                <tr>
 
-                        }
+                    <td>@user.Name</td>
+                    <td>@user.Email</td>
+                    <td>@user.Position</td>
+                     <td>@user.Role</td>
+                    @if (User.IsInRole("Admin"))
+                    {
+                                <td>
+                            @if (user.Role == "Manager")
+                            {
+                                        <td> <button onclick="changeRole('@user.Email', 'Admin')"> Make Admin</button></td>
 
-                        @if (user.Role == "Admin")
-                        {
-                        <td onclick="changeRole('@user.Email', 'Employee')"> <button> Make User</button></td>
+                            }
+                            @if (user.Role == "Employee")
+                            {
+                                        <td> <button onclick="changeRole('@user.Email', 'Manager')"> Make Manager</button></td>
 
-                        }
-                    </td>
-        }
-                @if (User.IsInRole("Admin"))
-                {
-               <td> <button class="btn btn-danger" onclick="deleteUser('@user.Id')"> Delete </button></td>
-                }
+                            }
 
-             
-        </tr>
-      }
-    </tbody>
-</table>
+                            @if (user.Role == "Admin")
+                            {
+                                        <td onclick="changeRole('@user.Email', 'Employee')"> <button> Make User</button></td>
+
+                            }
+                                </td>
+                    }
+                    @if (User.IsInRole("Admin"))
+                    {
+                           <td> <button class="btn btn-danger" onclick="deleteUser('@user.Id')"> Delete </button></td>
+                    }
+
+
+                </tr>
+            }
+        </tbody>
+    </table>
+
 
 
 <script>

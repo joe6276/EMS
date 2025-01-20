@@ -90,7 +90,7 @@ namespace EMS.Services
 
         public async Task<string> ForgotPassword(string email)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email.Trim() == email.Trim());
 
             if (user == null)
             {
@@ -152,12 +152,15 @@ namespace EMS.Services
             //get User
             try
             {
-                var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == userDetails.Username);
+
+
+                var users = await _context.Users.ToListAsync();
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Email.Trim() == userDetails.Username.Trim());
                 //Check password
                 var isValid = await _userManager.CheckPasswordAsync(user, userDetails.Password);
 
                 //if one is wrong
-                if (!isValid || user == null || string.IsNullOrEmpty(user.ConfirmationToken))
+                if (!isValid || user==null || !string.IsNullOrWhiteSpace(user.ConfirmationToken))
                 {
                     return new LoginResponseDTO();
                 }
@@ -202,6 +205,7 @@ namespace EMS.Services
         {
             
             var user = _mapper.Map<AddUSerDTO, User>(newUser);
+            user.UserName = user.Email;
             user.Id = Guid.NewGuid().ToString();
 
             try

@@ -7,6 +7,7 @@ using EMS.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace EMS.Controllers
 {
@@ -26,9 +27,11 @@ namespace EMS.Controllers
        
         public async Task<IActionResult> Index()
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var users = await _user.GetUsers();
-            return View(users);
+            var myusers = users.FindAll(x => x.Id != userId);
+            return View(myusers);
         }
 
         public IActionResult Login()
@@ -37,7 +40,7 @@ namespace EMS.Controllers
         }
 
         [HttpPost]
-        public  async Task<IActionResult> Login(LoginRequestDTO user)
+        public async Task<IActionResult> Login(LoginRequestDTO user)
         {
 
             var response = await _user.LoginUser(user);
@@ -45,7 +48,11 @@ namespace EMS.Controllers
             {
                 ModelState.AddModelError("", "Invalid Credentials");
             }
-            return RedirectToAction("Homepage", "Home");
+            else
+            {
+                return RedirectToAction("Homepage", "Home");
+            }
+            return View();
         }
 
 
@@ -81,8 +88,13 @@ namespace EMS.Controllers
             {
                 ModelState.AddModelError("", response);
             }
+            else
+            {
+                return RedirectToAction("Login", "User");
+            }
 
             return View();
+
         }
 
         public IActionResult ForgotPassword()
@@ -99,9 +111,13 @@ namespace EMS.Controllers
             {
                 ModelState.AddModelError("",response);
             }
+            else
+            {
+                return RedirectToAction("Reset", "User");
+            }
             return View();
         }
-        public IActionResult ResetPassword()
+        public IActionResult Reset()
         {
             return View();
         }
@@ -119,6 +135,10 @@ namespace EMS.Controllers
             if (!string.IsNullOrWhiteSpace(res))
             {
                 ModelState.AddModelError("", res);
+            }
+            else
+            {
+                return RedirectToAction("Login", "User");
             }
 
             return View();
@@ -141,6 +161,10 @@ namespace EMS.Controllers
         }
 
 
+        public IActionResult ResetSuccess()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> DeleteUser(string Id)
@@ -179,8 +203,20 @@ namespace EMS.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                      var response = await _user.UpdateUser(userId, addUSerDTO);
-            return RedirectToAction("index");
 
+            if (!response)
+            {
+                ModelState.AddModelError("", "Error Occured");
+            }
+            else
+            {
+                if (User.IsInRole("Employee"))
+                {
+                    return RedirectToAction("Homepage", "Home");
+                }
+                return RedirectToAction("index");
+            }
+            return View();
         }
     }
 }
