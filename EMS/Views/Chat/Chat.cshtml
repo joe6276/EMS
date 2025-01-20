@@ -1,0 +1,35 @@
+﻿@using System.Security.Claims
+<div id="chat">
+    @foreach (var message in Model)
+    {
+        <p><strong>@message.SenderId:</strong> @message.Content</p>
+    }
+</div>
+
+<input type="hidden" id="recipientId" value="@ViewBag.RecipientId" />
+<textarea id="messageContent" placeholder="Type a message"></textarea>
+<button id="sendMessage">Send</button>
+
+
+
+<script src="~/Scripts/jquery.signalR-2.4.2.min.js"></script>
+<script src="/signalr/hubs"></script>
+<script>
+    var chatHub = $.connection.chatHub;
+
+    chatHub.client.receiveMessage = function (senderId, content) {
+        if (senderId === $('#recipientId').val()) {
+            $('#chat').append('<p><strong>' + senderId + ':</strong> ' + content + '</p>');
+        }
+        alert('New message from ' + senderId);
+    };
+
+    $.connection.hub.start().done(function () {
+        $('#sendMessage').click(function () {
+            var recipientId = $('#recipientId').val();
+            var content = $('#messageContent').val();
+            chatHub.server.sendMessage('@User.FindFirst(ClaimTypes.NameIdentifier)?.Value;', recipientId, content);
+            $('#messageContent').val('');
+        });
+    });
+</script>

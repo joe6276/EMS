@@ -157,7 +157,7 @@ namespace EMS.Services
                 var isValid = await _userManager.CheckPasswordAsync(user, userDetails.Password);
 
                 //if one is wrong
-                if (!isValid || user == null)
+                if (!isValid || user == null || string.IsNullOrEmpty(user.ConfirmationToken))
                 {
                     return new LoginResponseDTO();
                 }
@@ -201,7 +201,7 @@ namespace EMS.Services
         public async Task<string> RegisterUser(AddUSerDTO newUser)
         {
             
-            var user = _mapper.Map<User>(newUser);
+            var user = _mapper.Map<AddUSerDTO, User>(newUser);
             user.Id = Guid.NewGuid().ToString();
 
             try
