@@ -59,7 +59,7 @@ namespace EMS.Services
             // Set the recipient's email address
             message1.To.Add(new MailboxAddress(name, email));
 
-            message1.Subject = "EMS Account Confirmationt";
+            message1.Subject = "EMS Account Confirmation";
 
             var builder = new BodyBuilder();
             string htmlTemplate = await File.ReadAllTextAsync("Templates/confirmation.html");

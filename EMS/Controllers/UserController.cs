@@ -46,11 +46,13 @@ namespace EMS.Controllers
             var response = await _user.LoginUser(user);
             if (string.IsNullOrEmpty(response.Name))
             {
-                ModelState.AddModelError("", "Invalid Credentials");
+                ModelState.AddModelError("", "Invalid Credentials / Confirm your Email ");
             }
             else
             {
+                TempData["success"] = "User Login  successfully";
                 return RedirectToAction("Homepage", "Home");
+
             }
             return View();
         }
@@ -90,6 +92,7 @@ namespace EMS.Controllers
             }
             else
             {
+                TempData["success"] = "User Registered  successfully";
                 return RedirectToAction("Login", "User");
             }
 
@@ -138,6 +141,7 @@ namespace EMS.Controllers
             }
             else
             {
+                TempData["success"] = "Password Reset successfully";
                 return RedirectToAction("Login", "User");
             }
 
@@ -202,7 +206,7 @@ namespace EMS.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                     var response = await _user.UpdateUser(userId, addUSerDTO);
+            var response = await _user.UpdateUser(userId, addUSerDTO);
 
             if (!response)
             {
@@ -212,9 +216,12 @@ namespace EMS.Controllers
             {
                 if (User.IsInRole("Employee"))
                 {
+                    TempData["success"] = "User Updated   successfully";
                     return RedirectToAction("Homepage", "Home");
                 }
+                TempData["success"] = "User Updated  successfully";
                 return RedirectToAction("index");
+
             }
             return View();
         }

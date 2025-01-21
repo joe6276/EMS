@@ -1,11 +1,12 @@
 ﻿@model UpdateUserDto
 
 
-<form method="post">
+<form asp-action="Edit" method="post">
 	<div class=" mt-4">
 		<div class="row pb-2">
 			<h2 class="text-black"> Update Your Profile </h2>
 		</div>
+		<div asp-validation-summary = "All" class="text-danger"></div>
 	</div>
 	<div class="form-row">
 		<div class="form-group col-md-6 mb-2">
@@ -33,7 +34,6 @@
 		</div>
 	</div>
 
-	
 <button type="submit" class="btn btn-primary"> Update </button>
 
 </form>

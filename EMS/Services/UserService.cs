@@ -289,11 +289,18 @@ namespace EMS.Services
 
         public async Task<bool> UpdateUser(string userId, UpdateUserDto updateUser)
         {
-            var existingUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
-            var updated = _mapper.Map(updateUser, existingUser);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var existingUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+                var updated = _mapper.Map(updateUser, existingUser);
+                await _context.SaveChangesAsync();
+                return true;
+            }catch(Exception ex)
+            {
+                return false;
+            }
 
-            return true;
+           
         }
 
         public async Task<UpdateUserDto> GetUpdateDetails(string userId)
