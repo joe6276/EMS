@@ -125,6 +125,11 @@ namespace EMS.Controllers
             return View();
         }
 
+        public IActionResult ResetPassword()
+        {
+            return View();
+        }
+
         [HttpPost]
         public async  Task<IActionResult> ResetPassword( ResetPasswordDTO resetDetails)
         {

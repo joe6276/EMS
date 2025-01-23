@@ -27,7 +27,7 @@ namespace EMS.Services
             message1.Subject = "EMS Password reset request";
 
             var builder = new BodyBuilder();
-            var resetLink = "https://localhost:7007/User/ResetPassword?token=" + token;
+            var resetLink = "https://ems20250120223451.azurewebsites.net/User/ResetPassword?token=" + token;
             string htmlTemplate = await File.ReadAllTextAsync("Templates/email.html");
             builder.HtmlBody = htmlTemplate.Replace("{reset_link}", resetLink);
 

@@ -7,6 +7,7 @@ using EMS.Models.DTO.UserDTO;
 using EMS.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Crypto.Generators;
 
 namespace EMS.Services
 {
@@ -204,7 +205,7 @@ namespace EMS.Services
         public async Task<string> RegisterUser(AddUSerDTO newUser)
         {
             
-            var user = _mapper.Map<AddUSerDTO, User>(newUser);
+            var user = _mapper.Map<User>(newUser);
             user.UserName = user.Email;
             user.Id = Guid.NewGuid().ToString();
 
@@ -292,15 +293,30 @@ namespace EMS.Services
             try
             {
                 var existingUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+          
                 var updated = _mapper.Map(updateUser, existingUser);
+
+
+                if (!string.IsNullOrEmpty(updateUser.Password))
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+                    var passwordUpdateResult = await _userManager.ResetPasswordAsync(existingUser, token, updateUser.Password);
+
+                    if (!passwordUpdateResult.Succeeded)
+                        return false;
+                }
+
                 await _context.SaveChangesAsync();
                 return true;
             }catch(Exception ex)
             {
                 return false;
             }
-
-           
+        }
+        private string HashPassword(string password)
+        {
+            // Using BCrypt for secure hashing
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
         public async Task<UpdateUserDto> GetUpdateDetails(string userId)

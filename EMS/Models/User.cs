@@ -25,8 +25,6 @@ namespace EMS.Models
         public string Email { get; set; } = string.Empty;
         [Required]
         public string Position { get; set; } = string.Empty;
-        [Required(ErrorMessage ="Password is Required")]
-        public string Password { get; set; } = string.Empty;
         [Required]
         public Department department { get; set; }  
         [Required]
